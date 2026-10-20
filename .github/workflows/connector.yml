@@ -1,0 +1,97 @@
+name: Connector release
+# Builds the usql that connector-ssh downloads. The names of the archives are
+# the names that its Dockerfile-base and utils/setup-usql.sh expect:
+# usql-<tag>-<os>-<arch>.tar.gz, with the binary named usql at the top.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+env:
+  APP: usql
+  GO_VERSION: stable
+  # The six schemes that the connector uses. no_base leaves out every driver
+  # that is not named. The build has no cgo, so one runner builds all targets.
+  TAGS: no_base mysql postgres sqlserver oracle clickhouse dameng
+
+jobs:
+  build:
+    name: Build ${{ matrix.goos }}/${{ matrix.goarch }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Test
+        run: |
+          CGO_ENABLED=0 go test -tags "$TAGS" \
+            ./masking/... ./env/... ./handler/... ./drivers/mysql/... ./drivers/dameng/...
+      - name: Build
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: '0'
+        run: |
+          ver=${GITHUB_REF_NAME#v}
+          if [ "$GITHUB_REF_TYPE" != tag ]; then
+            ver=0.0.0-dev
+          fi
+          echo "VER=$ver" >> "$GITHUB_ENV"
+          mkdir -p dist
+          go build -trimpath -tags "$TAGS" \
+            -ldflags "-s -w \
+              -X github.com/techshield-tech/usql/text.CommandName=$APP \
+              -X github.com/techshield-tech/usql/text.CommandVersion=$ver" \
+            -o "dist/$APP" .
+      - name: Check the version
+        if: matrix.goos == 'linux' && matrix.goarch == 'amd64'
+        run: |
+          got=$(dist/$APP --version)
+          test "$got" = "$APP $VER" || { echo "got '$got'" >&2; exit 1; }
+          # the connector looks for these names in the output of \drivers
+          out=$(dist/$APP -c '\drivers')
+          for scheme in mysql postgres sqlserver oracle clickhouse dameng; do
+            grep -q "$scheme" <<< "$out" || { echo "missing $scheme" >&2; exit 1; }
+          done
+      - name: Pack
+        run: |
+          cp LICENSE dist/
+          name=$APP-v$VER-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz
+          tar -C dist -czf "$name" "$APP" LICENSE
+          tar -tzf "$name"
+          sha256sum "$name" | tee "$name.sha256"
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: connector-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: ${{ env.APP }}-v*.tar.gz*
+          if-no-files-found: error
+
+  release:
+    name: Attach to the release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: connector-*
+          merge-multiple: true
+      - name: Publish
+        uses: softprops/action-gh-release@v3
+        with:
+          name: ${{ env.APP }} ${{ github.ref_name }}
+          files: |
+            usql-v*.tar.gz
+            usql-v*.tar.gz.sha256

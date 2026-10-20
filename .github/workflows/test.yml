@@ -91,7 +91,7 @@ jobs:
           go test -tags "$(./build.sh -T)" \
             ./feed/... \
             ./env/... \
-            ./handler/... \
+            ./handler/...             ./masking/...             ./drivers/mysql/...             ./drivers/dameng/... \
             ./metacmd \
             ./metacmd/complete \
             ./metacmd/describe \
