@@ -33,6 +33,7 @@ import (
 	"github.com/techshield-tech/usql/env"
 	"github.com/techshield-tech/usql/feed"
 	"github.com/techshield-tech/usql/highlight"
+	"github.com/techshield-tech/usql/masking"
 	"github.com/techshield-tech/usql/metacmd"
 	"github.com/techshield-tech/usql/metacmd/charts"
 	"github.com/techshield-tech/usql/metacmd/complete"
@@ -83,6 +84,9 @@ type Handler struct {
 	lastRaw string
 	// bind are bound values for that will be used for statement execution.
 	bind []interface{}
+	// masker hides the columns of a result set. The connection URL sets it, and
+	// it stays set for the session, so that \connect cannot lift it.
+	masker *masking.Masker
 	// u is the active connection information.
 	u *dburl.URL
 	// db is the active database connection.
@@ -683,6 +687,9 @@ func (h *Handler) Open(ctx context.Context, params ...string) error {
 		if err != nil {
 			return err
 		}
+		if u, err = h.takeMasking(u); err != nil {
+			return err
+		}
 		h.u = u
 		// force parameters
 		h.forceParams(h.u)
@@ -772,6 +779,25 @@ func (h *Handler) connStrings() []string {
 		names = append(names, entry.Protocol+"://"+user+host+port+dbname)
 	}
 	return append(names, slices.Sorted(maps.Keys(env.Vars().Conn()))...)
+}
+
+// takeMasking reads the masking rules from the URL, and returns the URL
+// without them, because a driver does not know the parameter. It fails when
+// the rules are not valid, so that no connection is made without the masking
+// that was asked for.
+func (h *Handler) takeMasking(u *dburl.URL) (*dburl.URL, error) {
+	q := u.Query()
+	if !q.Has(masking.Param) {
+		return u, nil
+	}
+	m, err := masking.Parse(q.Get(masking.Param))
+	if err != nil {
+		return nil, err
+	}
+	h.masker = m
+	q.Del(masking.Param)
+	u.RawQuery = q.Encode()
+	return dburl.Parse(u.String())
 }
 
 // forceParams forces connection parameters on a database URL, adding any
@@ -1128,6 +1154,10 @@ func (h *Handler) doExecSet(ctx context.Context, w io.Writer, opt metacmd.Option
 		if err = env.ValidIdentifier(n); err != nil {
 			return fmt.Errorf(text.CouldNotSetVariable, n)
 		}
+		// a variable can be printed, so it holds the masked value
+		if row[i] != "" {
+			row[i] = h.masker.Mask(c, row[i])
+		}
 		_ = env.Vars().Set(n, row[i])
 	}
 	return nil
@@ -1191,20 +1221,27 @@ func (h *Handler) doQuery(ctx context.Context, w io.Writer, opt metacmd.Option, 
 	}
 	// set up column type config
 	var extra []tblfmt.Option
+	var colTypes func(*sql.ColumnType) (any, error)
 	switch f := drivers.ColumnTypes(h.u); {
 	case f != nil:
+		colTypes = f
 		extra = append(extra, tblfmt.WithColumnTypesFunc(f))
 	case drivers.UseColumnTypes(h.u):
 		// Not tblfmt.WithUseColumnTypes, which scans straight into the type
 		// the driver names and so fails on a NULL in a column the driver
 		// described as not nullable. See drivers.NullSafeColumnType.
+		colTypes = drivers.NullSafeColumnType
 		extra = append(extra, tblfmt.WithColumnTypesFunc(drivers.NullSafeColumnType))
 	}
-	resultSet := tblfmt.ResultSet(rows)
+	var resultSet tblfmt.ResultSet = rows
+	if !h.masker.Empty() {
+		extra = append(extra, tblfmt.WithColumnTypesFunc(h.masker.ColumnTypes(colTypes)))
+		resultSet = h.masker.Wrap(rows)
+	}
 	// wrap query with crosstab
 	if opt.Exec == metacmd.ExecCrosstab {
 		var err error
-		if resultSet, err = tblfmt.NewCrosstabView(rows, append(extra, tblfmt.WithParams(opt.Crosstab...))...); err != nil {
+		if resultSet, err = tblfmt.NewCrosstabView(resultSet, append(extra, tblfmt.WithParams(opt.Crosstab...))...); err != nil {
 			return err
 		}
 		extra = nil
