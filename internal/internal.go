@@ -20,6 +20,7 @@ func KnownBuildTags() map[string]string {
 		"couchbase":     "couchbase",     // github.com/xo/dbimp/couchbase
 		"cratedb":       "cratedb",       // github.com/jackc/pgx/v5/stdlib
 		"csvq":          "csvq",          // github.com/mithrandie/csvq-driver
+		"dameng":        "dameng",        // gitee.com/chunanyong/dm
 		"databend":      "databend",      // github.com/xo/dbimp/databend
 		"databricks":    "databricks",    // github.com/xo/dbimp/databricks
 		"drill":         "drill",         // github.com/xo/dbimp/drill

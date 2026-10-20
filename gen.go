@@ -24,6 +24,7 @@ import (
 	"unicode"
 
 	"github.com/mattn/go-runewidth"
+	"github.com/techshield-tech/usql/drivers/dameng"
 	"github.com/xo/dburl"
 )
 
@@ -403,7 +404,9 @@ func parseDriverInfo(tag, filename string) (DriverInfo, error) {
 // build tag resolves even when it differs from the scheme.
 var schemes = sync.OnceValue(func() map[string]dburl.Scheme {
 	m := make(map[string]dburl.Scheme)
-	for _, scheme := range dburl.BaseSchemes() {
+	// the schemes that usql registers itself, because dburl has none (D006)
+	own := []dburl.Scheme{dameng.Scheme()}
+	for _, scheme := range append(dburl.BaseSchemes(), own...) {
 		m[scheme.Name] = scheme
 		for _, alias := range scheme.Aliases {
 			if _, ok := m[alias]; !ok {

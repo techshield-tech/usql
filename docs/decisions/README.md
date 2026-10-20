@@ -24,3 +24,4 @@ reference to one of theirs names the repository, as in "dburl's D22".
 | [D3](D003-no-metadata-reader-is-written-in-usql.md) | No metadata reader is written in usql | Decided |
 | [D4](D004-usql-reads-all-metadata-from-dbmeta-at-once.md) | usql reads all metadata from dbmeta, at once | Decided |
 | [D5](D005-a-driver-field-that-describes-the-database-moves-to-dbmeta.md) | A driver field that describes the database moves to dbmeta | Decided |
+| [D6](D006-usql-registers-the-dameng-scheme-with-dburl.md) | usql registers the Dameng scheme with dburl | Proposed |

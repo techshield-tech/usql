@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/xo/dbmeta"
-	"github.com/xo/dburl"
 	"github.com/techshield-tech/usql/drivers"
 )
 
@@ -17,6 +16,7 @@ import (
 var noModel = map[string]string{
 	"chai":       "no model yet",
 	"csvq":       "no model yet",
+	"dameng":     "no model yet, W63",
 	"dynamodb":   "no model yet",
 	"flightsql":  "no model yet",
 	"maxcompute": "no model yet",
@@ -33,7 +33,7 @@ var noModel = map[string]string{
 func TestEveryDriverReadsThroughDbmeta(t *testing.T) {
 	t.Parallel()
 	dialect := make(map[string]string)
-	for _, scheme := range dburl.BaseSchemes() {
+	for _, scheme := range allSchemes() {
 		dialect[scheme.Name] = scheme.Dialect
 	}
 	var read int

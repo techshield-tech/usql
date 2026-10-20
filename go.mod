@@ -3,6 +3,7 @@ module github.com/techshield-tech/usql
 go 1.27.1
 
 require (
+	gitee.com/chunanyong/dm v1.8.23
 	github.com/SAP/go-hdb v1.19.2
 	github.com/VoltDB/voltdb-client-go v1.0.18
 	github.com/aliyun/aliyun-odps-go-sdk v0.4.26

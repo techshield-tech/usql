@@ -13,6 +13,7 @@ import (
 
 	"github.com/xo/dburl"
 	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/drivers/dameng"
 	"github.com/techshield-tech/usql/internal"
 )
 
@@ -63,7 +64,7 @@ func TestDriverSeeMatchesDburl(t *testing.T) {
 // build tag resolves even when it differs from the scheme.
 func schemeIndex() map[string]dburl.Scheme {
 	m := make(map[string]dburl.Scheme)
-	for _, scheme := range dburl.BaseSchemes() {
+	for _, scheme := range allSchemes() {
 		m[scheme.Name] = scheme
 		for _, alias := range scheme.Aliases {
 			if _, ok := m[alias]; !ok {
@@ -72,6 +73,12 @@ func schemeIndex() map[string]dburl.Scheme {
 		}
 	}
 	return m
+}
+
+// allSchemes returns the base schemes of dburl and the schemes that usql
+// registers itself, because dburl has none (D6).
+func allSchemes() []dburl.Scheme {
+	return append(dburl.BaseSchemes(), dameng.Scheme())
 }
 
 // driverTags returns the build tag of every driver, which is the name of its
@@ -126,7 +133,7 @@ func driverSee(t *testing.T, tag string) (string, bool) {
 func TestRegistryIsKeyedByScheme(t *testing.T) {
 	t.Parallel()
 	names := make(map[string]bool)
-	for _, scheme := range dburl.BaseSchemes() {
+	for _, scheme := range allSchemes() {
 		names[scheme.Name] = true
 	}
 	registered := drivers.Available()

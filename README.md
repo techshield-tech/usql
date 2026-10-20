@@ -244,9 +244,9 @@ associated database, scheme / build tag, and scheme aliases:
 
 | Database             | Scheme / Tag    | Scheme Aliases                                   | Driver Package / Notes                                                                      |
 | -------------------- | --------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| Presto               | `presto`        | `pr`, `prestodb`                                 | [github.com/xo/dbimp/trino][d-presto]                                                       |
-| PostgreSQL           | `postgres`      | `pg`, `pgsql`, `postgresql`                      | [github.com/jackc/pgx/v5/stdlib][d-postgres]                                                |
 | Trino                | `trino`         | `tr`                                             | [github.com/xo/dbimp/trino][d-trino]                                                        |
+| PostgreSQL           | `postgres`      | `pg`, `pgsql`, `postgresql`                      | [github.com/jackc/pgx/v5/stdlib][d-postgres]                                                |
+| Presto               | `presto`        | `pr`, `prestodb`                                 | [github.com/xo/dbimp/trino][d-presto]                                                       |
 | PostgreSQL PGX       | `pgx`           | `px`                                             | [github.com/jackc/pgx/v5/stdlib][d-pgx]                                                     |
 | MySQL                | `mysql`         | `my`, `maria`, `aurora`, `mariadb`, `percona`    | [github.com/go-sql-driver/mysql][d-mysql]                                                   |
 | Microsoft SQL Server | `sqlserver`     | `ms`, `mssql`, `azuresql`                        | [github.com/microsoft/go-mssqldb][d-sqlserver]                                              |
@@ -303,7 +303,7 @@ associated database, scheme / build tag, and scheme aliases:
 | VoltDB               | `voltdb`        | `vo`, `vdb`, `volt`                              | [github.com/VoltDB/voltdb-client-go/voltdbclient][d-voltdb]                                 |
 | YDB                  | `ydb`           | `yd`                                             | [github.com/ydb-platform/ydb-go-sdk/v3][d-ydb]                                              |
 |                      |                 |                                                  |                                                                                             |
-|                      |                 |                                                  |                                                                                             |
+| Dameng DM8           | `dameng`        | `dm`, `dm8`                                      | [gitee.com/chunanyong/dm][d-dameng]                                                         |
 |                      |                 |                                                  |                                                                                             |
 | Apache H2            | `h2`            |                                                  | [github.com/jmrobles/h2go][d-h2]                                                            |
 | GizmoSQL             | `gizmosql`      | `gz`, `gizmo`                                    | [github.com/apache/arrow-go/v18/arrow/flight/flightsql/driver][d-gizmosql]                  |
@@ -326,6 +326,7 @@ associated database, scheme / build tag, and scheme aliases:
 [d-couchbase]: https://github.com/xo/dbimp
 [d-cratedb]: https://github.com/jackc/pgx
 [d-csvq]: https://github.com/mithrandie/csvq-driver
+[d-dameng]: https://gitee.com/chunanyong/dm
 [d-databend]: https://github.com/xo/dbimp
 [d-databricks]: https://github.com/xo/dbimp
 [d-drill]: https://github.com/xo/dbimp
