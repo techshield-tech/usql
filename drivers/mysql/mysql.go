@@ -8,10 +8,14 @@
 package mysql
 
 import (
+	"context"
+	"database/sql"
+	"io"
 	"strconv"
 
 	"github.com/go-sql-driver/mysql" // DRIVER
 	"github.com/techshield-tech/usql/drivers"
+	"github.com/xo/dburl"
 )
 
 func init() {
@@ -23,6 +27,14 @@ func init() {
 // this driver under that database's own name.
 func Driver() drivers.Driver {
 	return drivers.Driver{
+		Open: func(_ context.Context, u *dburl.URL, _, _ func() io.Writer) (func(string, string) (*sql.DB, error), error) {
+			dsn, err := registerTLS(u.DSN)
+			if err != nil {
+				return nil, err
+			}
+			u.DSN = dsn
+			return sql.Open, nil
+		},
 		Err: func(err error) (string, string) {
 			if e, ok := err.(*mysql.MySQLError); ok {
 				return strconv.Itoa(int(e.Number)), e.Message
