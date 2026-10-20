@@ -2861,3 +2861,39 @@ scripts follow. A session of `testdata/cli` records `\uset`.
 What a setting is not: it is not a variable, so `:pager` no longer interpolates.
 `ROW_COUNT` stays a script variable, because usql sets it for scripts.
 
+
+## W62. Support the JumpServer connector
+
+The connector in `connector-ssh` runs usql with a URL that carries parameters
+for masking, TLS and the pager. `docs/usql-requirements.md` lists what it
+needs. This item holds what was added for it.
+
+- Masking: the `data-masking-rules` parameter holds a JSON list of rules, in
+  the format of the connector. `masking` applies them to the result sets of
+  queries, crosstab views and `\gset`. The handler removes the parameter
+  before it opens the driver. Rules that are not valid JSON stop the
+  connection. The rules stay for the whole session, so `\connect` does not lift
+  them. `\copy` opens its own connections and is not masked.
+- MySQL TLS: `ssl-ca`, `ssl-cert` and `ssl-key` name files. `drivers/mysql`
+  registers a `custom` TLS configuration from them and removes the three
+  parameters, because go-sql-driver would send them to the server as system
+  variables.
+- Pager: the connector sets `PAGE=` to turn the pager off. usql reads `PAGE`
+  before `PAGER`.
+- Dameng: see D6.
+- Release: `.github/workflows/connector.yml` builds the six drivers that the
+  connector uses, as static binaries, and attaches `usql-<tag>-<os>-<arch>.tar.gz`
+  to the release.
+
+Not checked against a real server: the MySQL TLS handshake, the Dameng
+connection, and the Oracle `DBA PRIVILEGE=SYSDBA` parameter. `dburl` passes
+PostgreSQL `ssl*`, SQL Server `encrypt` and the Oracle parameter through to
+the driver as the connector writes them.
+
+## W63. Move the Dameng rules to dbmeta
+
+D6 leaves Dameng without a dbmeta model. Add one, so that `\d` works, a
+trailing semicolon is stripped if the server refuses it, and unquoted names
+fold to upper case. Then check `drivers/dameng` against a DM8 server with
+`dbrun`. The `--drivers` flag does not exist. The connector falls back to
+`\drivers`, which lists all six schemes.
