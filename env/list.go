@@ -275,7 +275,7 @@ var envVarNames = []varName{
 		`alternative location for the command history file`,
 	},
 	{
-		text.CommandUpper() + `_PAGER, PAGER`,
+		text.CommandUpper() + `_PAGER, PAGE, PAGER`,
 		`name of external pager program`,
 	},
 	{

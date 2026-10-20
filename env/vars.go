@@ -58,8 +58,9 @@ func NewDefaultVars() *Variables {
 	if noColor || colorLevel < terminfo.ColorLevelBasic {
 		enableSyntaxHL = "false"
 	}
-	// pager
-	pagerCmd, ok := Getenv(cmdNameUpper+"_PAGER", "PAGER")
+	// pager. The JumpServer connector sets PAGE to an empty value to turn the
+	// pager off.
+	pagerCmd, ok := Getenv(cmdNameUpper+"_PAGER", "PAGE", "PAGER")
 	pager := "off"
 	if !ok {
 		for _, s := range []string{"less", "more"} {
