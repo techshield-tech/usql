@@ -13,8 +13,8 @@
 package gizmosql
 
 import (
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/drivers/flightsql"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/drivers/flightsql"
 )
 
 func init() {

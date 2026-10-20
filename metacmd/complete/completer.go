@@ -14,7 +14,7 @@ import (
 
 	"github.com/xo/rline"
 
-	"github.com/xo/usql/env"
+	"github.com/techshield-tech/usql/env"
 )
 
 const (

@@ -23,7 +23,7 @@ package dynamodb
 
 import (
 	_ "github.com/xo/dbimp/dynamodb" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

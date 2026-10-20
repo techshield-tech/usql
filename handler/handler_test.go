@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/xo/rline"
-	"github.com/xo/usql/feed"
+	"github.com/techshield-tech/usql/feed"
 )
 
 // TestRunCommandMetaCommand checks that the text of -c runs a meta command

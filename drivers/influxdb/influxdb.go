@@ -31,7 +31,7 @@ import (
 	"fmt"
 
 	"github.com/xo/dbimp/influxdb" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

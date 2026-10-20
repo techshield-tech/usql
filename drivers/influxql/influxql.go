@@ -10,8 +10,8 @@
 package influxql
 
 import (
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/drivers/influxdb"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/drivers/influxdb"
 )
 
 func init() {

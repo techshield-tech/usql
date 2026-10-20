@@ -7,7 +7,7 @@ package couchbase
 import (
 	_ "github.com/xo/dbimp/couchbase" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

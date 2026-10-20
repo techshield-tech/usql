@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	_ "github.com/SAP/go-hdb/driver" // DRIVER: hdb
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

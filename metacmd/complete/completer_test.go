@@ -3,8 +3,8 @@ package complete
 import (
 	"testing"
 
-	"github.com/xo/usql/env"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/env"
+	"github.com/techshield-tech/usql/text"
 )
 
 func TestCompleter(t *testing.T) {

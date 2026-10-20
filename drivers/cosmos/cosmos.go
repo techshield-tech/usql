@@ -19,7 +19,7 @@ package cosmos
 import (
 	_ "github.com/xo/dbimp/cosmos" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

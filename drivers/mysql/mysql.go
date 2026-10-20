@@ -11,7 +11,7 @@ import (
 	"strconv"
 
 	"github.com/go-sql-driver/mysql" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

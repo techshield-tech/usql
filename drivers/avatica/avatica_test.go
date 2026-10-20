@@ -9,8 +9,8 @@ import (
 	"github.com/xo/dbimp"
 	"github.com/xo/dbimp/avatica"
 	"github.com/xo/dburl"
-	"github.com/xo/usql/drivers"
-	_ "github.com/xo/usql/drivers/avatica"
+	"github.com/techshield-tech/usql/drivers"
+	_ "github.com/techshield-tech/usql/drivers/avatica"
 )
 
 func TestIsPasswordErr(t *testing.T) {

@@ -12,8 +12,8 @@ import (
 	"testing"
 
 	"github.com/xo/dburl"
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/internal"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/internal"
 )
 
 // seeRE matches the See: line in a driver's package comment.

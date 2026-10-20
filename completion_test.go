@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/xo/usql/internal/capture"
+	"github.com/techshield-tech/usql/internal/capture"
 )
 
 // ansiRE matches the escape sequences the line editor writes while redrawing.

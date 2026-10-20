@@ -18,7 +18,7 @@ package neo4j
 import (
 	_ "github.com/xo/dbimp/neo4j" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

@@ -14,11 +14,11 @@ import (
 	"github.com/mattn/go-runewidth"
 	"github.com/xo/dburl"
 	"github.com/xo/rline"
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/env"
-	"github.com/xo/usql/feed"
-	"github.com/xo/usql/metacmd/describe"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/env"
+	"github.com/techshield-tech/usql/feed"
+	"github.com/techshield-tech/usql/metacmd/describe"
+	"github.com/techshield-tech/usql/text"
 )
 
 // Handler is the shared interface for a command handler.

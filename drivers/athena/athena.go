@@ -19,7 +19,7 @@ package athena
 import (
 	_ "github.com/xo/dbimp/athena" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

@@ -10,7 +10,7 @@ package databend
 
 import (
 	_ "github.com/xo/dbimp/databend" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

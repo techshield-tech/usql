@@ -2,7 +2,7 @@ package internal
 
 import (
 	"github.com/xo/dburl"
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

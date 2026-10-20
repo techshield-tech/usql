@@ -16,7 +16,7 @@ import (
 
 	"github.com/xo/dbmeta"
 	_ "github.com/xo/dbmeta/all" // every model
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/text"
 )
 
 // ErrNotSupported is returned when the database cannot answer a command.

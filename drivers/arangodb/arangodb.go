@@ -18,7 +18,7 @@ package arangodb
 import (
 	_ "github.com/xo/dbimp/arangodb" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

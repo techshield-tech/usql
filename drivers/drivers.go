@@ -19,8 +19,8 @@ import (
 	_ "github.com/xo/dbmeta/all" // every model
 	"github.com/xo/dburl"
 	"github.com/xo/transit"
-	"github.com/xo/usql/feed"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/feed"
+	"github.com/techshield-tech/usql/text"
 )
 
 // DB is the common interface for database operations, compatible with

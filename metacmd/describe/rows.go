@@ -4,8 +4,8 @@ import (
 	"io"
 
 	"github.com/xo/tblfmt"
-	"github.com/xo/usql/env"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/env"
+	"github.com/techshield-tech/usql/text"
 )
 
 // rows is a table of values that tblfmt renders. Each command builds one per

@@ -19,7 +19,7 @@ package databricks
 import (
 	_ "github.com/xo/dbimp/databricks" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

@@ -1,4 +1,4 @@
-module github.com/xo/usql
+module github.com/techshield-tech/usql
 
 go 1.27.1
 

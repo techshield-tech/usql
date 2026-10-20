@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/xo/dbmeta"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/text"
 )
 
 // Formatter formats the answers of the describe commands, such as \d and \dt,

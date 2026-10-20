@@ -20,8 +20,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/stdlib" // DRIVER
 	"github.com/xo/dburl"
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/text"
 )
 
 func init() {

@@ -22,7 +22,7 @@ package surrealdb
 import (
 	_ "github.com/xo/dbimp/surrealdb" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

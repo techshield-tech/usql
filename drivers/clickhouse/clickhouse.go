@@ -14,7 +14,7 @@ package clickhouse
 import (
 	_ "github.com/xo/dbimp/clickhouse" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

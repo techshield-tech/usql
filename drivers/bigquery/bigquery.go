@@ -19,7 +19,7 @@ package bigquery
 import (
 	_ "github.com/xo/dbimp/bigquery" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

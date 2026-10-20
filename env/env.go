@@ -19,7 +19,7 @@ import (
 
 	"github.com/kenshaw/rasterm"
 	"github.com/xo/dburl/passfile"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/text"
 )
 
 // vars are environment variables.

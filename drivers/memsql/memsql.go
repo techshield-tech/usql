@@ -8,8 +8,8 @@
 package memsql
 
 import (
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/drivers/mysql"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/drivers/mysql"
 )
 
 func init() {

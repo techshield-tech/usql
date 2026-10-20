@@ -23,7 +23,7 @@ package avatica
 import (
 	_ "github.com/xo/dbimp/avatica" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

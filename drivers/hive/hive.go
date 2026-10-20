@@ -6,7 +6,7 @@ package hive
 
 import (
 	_ "github.com/beltran/gohive/v2" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

@@ -7,7 +7,7 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 	"github.com/ydb-platform/ydb-go-sdk/v3" // DRIVER
 )
 

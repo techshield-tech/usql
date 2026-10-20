@@ -23,7 +23,7 @@ package druid
 import (
 	_ "github.com/xo/dbimp/druid" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

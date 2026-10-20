@@ -13,7 +13,7 @@ import (
 	syslocale "github.com/jeandeaual/go-locale"
 	"github.com/xo/terminfo"
 	"github.com/xo/transit/styles"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/text"
 )
 
 // Variables handles the standard, print, and connection variables.

@@ -7,7 +7,7 @@ import (
 	"errors"
 
 	"github.com/sclgo/impala-go" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

@@ -14,7 +14,7 @@ import (
 	"strings"
 
 	_ "github.com/xo/cassandra" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

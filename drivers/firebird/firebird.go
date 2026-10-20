@@ -5,7 +5,7 @@ package firebird
 
 import (
 	_ "github.com/nakagami/firebirdsql" // DRIVER: firebirdsql
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

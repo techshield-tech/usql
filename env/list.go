@@ -10,7 +10,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/text"
 	"github.com/yookoala/realpath"
 )
 

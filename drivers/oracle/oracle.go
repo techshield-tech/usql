@@ -12,8 +12,8 @@ import (
 
 	_ "github.com/sijms/go-ora/v3" // DRIVER
 	"github.com/xo/dburl"
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/env"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/env"
 )
 
 func init() {

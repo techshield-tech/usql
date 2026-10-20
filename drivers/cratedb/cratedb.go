@@ -9,8 +9,8 @@
 package cratedb
 
 import (
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/drivers/pgx"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/drivers/pgx"
 )
 
 func init() {

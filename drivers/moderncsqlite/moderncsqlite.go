@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/drivers/sqlite3/sqshared"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/drivers/sqlite3/sqshared"
 	"modernc.org/sqlite" // DRIVER
 )
 

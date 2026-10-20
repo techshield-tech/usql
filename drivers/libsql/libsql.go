@@ -23,7 +23,7 @@ package libsql
 import (
 	_ "github.com/xo/dbimp/libsql" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

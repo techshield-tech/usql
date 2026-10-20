@@ -18,7 +18,7 @@ import (
 
 	"github.com/xo/echartsgoja"
 	"github.com/xo/resvg"
-	"github.com/xo/usql/metacmd/charts"
+	"github.com/techshield-tech/usql/metacmd/charts"
 )
 
 func init() {

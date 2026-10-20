@@ -18,10 +18,10 @@ import (
 	"github.com/spf13/viper"
 	"github.com/xo/dburl"
 	"github.com/xo/rline"
-	"github.com/xo/usql/env"
-	"github.com/xo/usql/feed"
-	"github.com/xo/usql/handler"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/env"
+	"github.com/techshield-tech/usql/feed"
+	"github.com/techshield-tech/usql/handler"
+	"github.com/techshield-tech/usql/text"
 )
 
 // ContextExecutor is the command context.

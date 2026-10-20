@@ -22,7 +22,7 @@ package pinot
 import (
 	_ "github.com/xo/dbimp/pinot" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

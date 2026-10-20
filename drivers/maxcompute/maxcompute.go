@@ -8,7 +8,7 @@ import (
 	"database/sql"
 
 	"github.com/aliyun/aliyun-odps-go-sdk/sqldriver" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

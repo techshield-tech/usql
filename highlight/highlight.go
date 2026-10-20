@@ -23,7 +23,7 @@ import (
 	"github.com/xo/transit/grammars/usql"
 	"github.com/xo/transit/inject"
 	"github.com/xo/transit/styles"
-	"github.com/xo/usql/env"
+	"github.com/techshield-tech/usql/env"
 )
 
 // Highlighter marks up the text that the line editor holds. It keeps the parse

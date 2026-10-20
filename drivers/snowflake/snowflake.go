@@ -21,7 +21,7 @@ package snowflake
 import (
 	_ "github.com/xo/dbimp/snowflake" // DRIVER
 
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

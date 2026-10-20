@@ -6,7 +6,7 @@ package flightsql
 
 import (
 	_ "github.com/apache/arrow-go/v18/arrow/flight/flightsql/driver" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

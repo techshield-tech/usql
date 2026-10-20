@@ -14,10 +14,10 @@ import (
 	"strings"
 
 	"github.com/xo/rline"
-	"github.com/xo/usql/drivers"
-	"github.com/xo/usql/handler"
-	"github.com/xo/usql/internal"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/drivers"
+	"github.com/techshield-tech/usql/handler"
+	"github.com/techshield-tech/usql/internal"
+	"github.com/techshield-tech/usql/text"
 )
 
 func main() {

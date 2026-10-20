@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/xo/dbmeta"
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/text"
 )
 
 // Call is one describe command as typed, such as \dT+ public.*.

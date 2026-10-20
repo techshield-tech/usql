@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	sqlserver "github.com/microsoft/go-mssqldb" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 
 	// needed for azuresql authentication, named pipes, and shared memory transport protocols
 	_ "github.com/microsoft/go-mssqldb/azuread"

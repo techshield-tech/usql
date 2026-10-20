@@ -7,7 +7,7 @@ package duckdb
 
 import (
 	_ "github.com/duckdb/duckdb-go/v2" // DRIVER
-	"github.com/xo/usql/drivers"
+	"github.com/techshield-tech/usql/drivers"
 )
 
 func init() {

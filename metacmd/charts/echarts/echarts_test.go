@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/xo/usql/metacmd/charts"
+	"github.com/techshield-tech/usql/metacmd/charts"
 )
 
 // TestRegistered checks that importing this package registers the renderer.

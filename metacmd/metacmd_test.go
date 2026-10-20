@@ -4,8 +4,8 @@ import (
 	"slices"
 	"testing"
 
-	"github.com/xo/usql/feed"
-	"github.com/xo/usql/metacmd/describe"
+	"github.com/techshield-tech/usql/feed"
+	"github.com/techshield-tech/usql/metacmd/describe"
 )
 
 func TestNames(t *testing.T) {

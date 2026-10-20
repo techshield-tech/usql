@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/xo/usql/internal/capture"
+	"github.com/techshield-tech/usql/internal/capture"
 )
 
 // update rewrites the golden files instead of comparing against them.

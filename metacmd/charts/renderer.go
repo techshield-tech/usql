@@ -5,7 +5,7 @@ import (
 	"image"
 	"image/color"
 
-	"github.com/xo/usql/text"
+	"github.com/techshield-tech/usql/text"
 )
 
 // Renderer turns a chart into something that can be displayed.

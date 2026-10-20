@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/xo/dbmeta"
-	"github.com/xo/usql/metacmd/complete"
+	"github.com/techshield-tech/usql/metacmd/complete"
 )
 
 // Source returns the source of the names that the completer offers, read
