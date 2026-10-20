@@ -579,6 +579,9 @@ func Out(p *Params) error {
 //	copy	SRC DST QUERY TABLE	copy results of query from source database into table on destination database
 //	copy	SRC DST QUERY TABLE(A,...)	copy results of query from source database into table's columns on destination database
 func Copy(p *Params) error {
+	if p.Handler.Masking() {
+		return text.ErrCopyWithMasking
+	}
 	srcstr, err := p.Next(true)
 	if err != nil {
 		return err

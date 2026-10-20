@@ -122,18 +122,24 @@ func TestRows(t *testing.T) {
 	}
 	defer rows.Close()
 	m := New([]Rule{{FieldsPattern: "phone", MaskingMethod: "hide_middle", Priority: 1, IsActive: true}})
-	types := m.ColumnTypes(func(*sql.ColumnType) (any, error) { return new(any), nil })
-	r := m.Wrap(rows)
+	r := m.Wrap(rows, "select")
 	cts, err := r.ColumnTypes()
 	if err != nil {
 		t.Fatal(err)
 	}
 	for n := 0; r.Next(); n++ {
 		dest := make([]any, len(cts))
-		for i, ct := range cts {
-			if dest[i], err = types(ct); err != nil {
-				t.Fatal(err)
+		types := func(ct *sql.ColumnType) (any, error) {
+			if ct.Name() == "id" {
+				return new(sql.NullInt64), nil
 			}
+			return new(sql.NullString), nil
+		}
+		if err := r.ScanTypes(types, dest); err != nil {
+			t.Fatal(err)
+		}
+		if _, ok := dest[0].(*sql.NullInt64); !ok {
+			t.Errorf("id dest = %T, want the type that f gives", dest[0])
 		}
 		if err := r.Scan(dest...); err != nil {
 			t.Fatal(err)
@@ -153,14 +159,14 @@ func TestRows(t *testing.T) {
 }
 
 func TestHideClearsOtherTypes(t *testing.T) {
-	m := New([]Rule{{FieldsPattern: "a", MaskingMethod: "fixed_char", MaskPattern: "#", IsActive: true}})
+	rule := Rule{FieldsPattern: "a", MaskingMethod: "fixed_char", MaskPattern: "#", IsActive: true}
 	n := sql.NullInt64{Int64: 42, Valid: true}
-	hide(&n, m, "a")
+	hide(&n, rule, false)
 	if n.Valid || n.Int64 != 0 {
 		t.Errorf("got %+v, want the value cleared", n)
 	}
 	s := sql.NullString{String: "abc", Valid: true}
-	hide(&s, m, "a")
+	hide(&s, rule, false)
 	if s.String != "#" {
 		t.Errorf("got %q, want the mask", s.String)
 	}

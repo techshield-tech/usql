@@ -74,6 +74,8 @@ type Handler interface {
 	Formatter(context.Context) (*describe.Formatter, error)
 	// Print formats according to a format specifier and writes to handler's standard output.
 	Print(string, ...interface{})
+	// Masking reports whether masking rules apply to the session.
+	Masking() bool
 }
 
 // Dump writes the command descriptions to w, separated by section.

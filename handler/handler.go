@@ -338,6 +338,9 @@ func (h *Handler) Execute(ctx context.Context, w io.Writer, opt metacmd.Option, 
 	}
 	// determine type and pre process string
 	prefix, sqlstr, qtyp := drivers.Process(h.u, prefix, sqlstr)
+	if err := h.masker.Check(sqlstr); err != nil {
+		return err
+	}
 	f := h.doExecSingle
 	switch opt.Exec {
 	case metacmd.ExecExec:
@@ -349,7 +352,7 @@ func (h *Handler) Execute(ctx context.Context, w io.Writer, opt metacmd.Option, 
 	case metacmd.ExecChart:
 		f = h.doExecChart
 	}
-	return drivers.WrapErr(h.u.SchemeName, f(ctx, w, opt, prefix, sqlstr, qtyp, bind))
+	return h.masker.Redact(sqlstr, drivers.WrapErr(h.u.SchemeName, f(ctx, w, opt, prefix, sqlstr, qtyp, bind)))
 }
 
 // prefix returns the prefix of the first statement of sqlstr, as \gexec needs
@@ -784,7 +787,8 @@ func (h *Handler) connStrings() []string {
 // takeMasking reads the masking rules from the URL, and returns the URL
 // without them, because a driver does not know the parameter. It fails when
 // the rules are not valid, so that no connection is made without the masking
-// that was asked for.
+// that was asked for. The rules add to the rules of the session, so that a
+// URL with no rule, or with rules that are not active, cannot remove them.
 func (h *Handler) takeMasking(u *dburl.URL) (*dburl.URL, error) {
 	q := u.Query()
 	if !q.Has(masking.Param) {
@@ -794,7 +798,7 @@ func (h *Handler) takeMasking(u *dburl.URL) (*dburl.URL, error) {
 	if err != nil {
 		return nil, err
 	}
-	h.masker = m
+	h.masker = h.masker.Join(m)
 	q.Del(masking.Param)
 	u.RawQuery = q.Encode()
 	return dburl.Parse(u.String())
@@ -991,6 +995,11 @@ func (h *Handler) Print(s string, v ...interface{}) {
 	fmt.Fprintln(h.l, fmt.Sprintf(s, v...))
 }
 
+// Masking reports whether masking rules apply to the session.
+func (h *Handler) Masking() bool {
+	return !h.masker.Empty()
+}
+
 // doExecWatch repeatedly executes a query against the database.
 func (h *Handler) doExecWatch(ctx context.Context, w io.Writer, opt metacmd.Option, prefix, sqlstr string, qtyp bool, bind []interface{}) error {
 	for {
@@ -1046,10 +1055,11 @@ func (h *Handler) doExecChart(ctx context.Context, w io.Writer, opt metacmd.Opti
 		return err
 	}
 	// process row(s)
+	rs := h.result(rows, sqlstr)
 	transposed := make([][]string, len(cols))
 	clen, tfmt := len(cols), env.Vars().PrintTimeFormat()
-	for rows.Next() {
-		row, err := h.scan(rows, clen, tfmt)
+	for rs.Next() {
+		row, err := h.scan(rs, clen, tfmt)
 		if err != nil {
 			return err
 		}
@@ -1133,12 +1143,13 @@ func (h *Handler) doExecSet(ctx context.Context, w io.Writer, opt metacmd.Option
 		return err
 	}
 	// process row(s)
+	rs := h.result(rows, sqlstr)
 	var i int
 	var row []string
 	clen, tfmt := len(cols), env.Vars().PrintTimeFormat()
-	for rows.Next() {
+	for rs.Next() {
 		if i == 0 {
-			row, err = h.scan(rows, clen, tfmt)
+			row, err = h.scan(rs, clen, tfmt)
 			if err != nil {
 				return err
 			}
@@ -1154,10 +1165,6 @@ func (h *Handler) doExecSet(ctx context.Context, w io.Writer, opt metacmd.Option
 		if err = env.ValidIdentifier(n); err != nil {
 			return fmt.Errorf(text.CouldNotSetVariable, n)
 		}
-		// a variable can be printed, so it holds the masked value
-		if row[i] != "" {
-			row[i] = h.masker.Mask(c, row[i])
-		}
 		_ = env.Vars().Set(n, row[i])
 	}
 	return nil
@@ -1172,13 +1179,14 @@ func (h *Handler) doExecExec(ctx context.Context, w io.Writer, _ metacmd.Option,
 		return err
 	}
 	defer rows.Close()
+	rs := h.result(rows, sqlstr)
 	// exec resulting rows
-	if err := h.doExecRows(ctx, w, rows); err != nil {
+	if err := h.doExecRows(ctx, w, rs); err != nil {
 		return err
 	}
 	// check for additional result sets ...
-	for rows.NextResultSet() {
-		if err := h.doExecRows(ctx, w, rows); err != nil {
+	for rs.NextResultSet() {
+		if err := h.doExecRows(ctx, w, rs); err != nil {
 			return err
 		}
 	}
@@ -1235,8 +1243,11 @@ func (h *Handler) doQuery(ctx context.Context, w io.Writer, opt metacmd.Option, 
 	}
 	var resultSet tblfmt.ResultSet = rows
 	if !h.masker.Empty() {
-		extra = append(extra, tblfmt.WithColumnTypesFunc(h.masker.ColumnTypes(colTypes)))
-		resultSet = h.masker.Wrap(rows)
+		masked := h.masker.Wrap(rows, sqlstr)
+		extra = append(extra, tblfmt.WithColumnTypes(func(_ tblfmt.ResultSet, dest []any, _ int) error {
+			return masked.ScanTypes(colTypes, dest)
+		}))
+		resultSet = masked
 	}
 	// wrap query with crosstab
 	if opt.Exec == metacmd.ExecCrosstab {
@@ -1281,11 +1292,11 @@ func (h *Handler) doQuery(ctx context.Context, w io.Writer, opt metacmd.Option, 
 }
 
 // doExecRows executes all the columns in the row.
-func (h *Handler) doExecRows(ctx context.Context, w io.Writer, rows *sql.Rows) error {
+func (h *Handler) doExecRows(ctx context.Context, w io.Writer, rows tblfmt.ResultSet) error {
 	// get columns
-	cols, err := drivers.Columns(h.u, rows)
+	cols, err := rows.Columns()
 	if err != nil {
-		return err
+		return drivers.WrapErr(h.u.SchemeName, err)
 	}
 	// process rows
 	res := metacmd.Option{
@@ -1309,8 +1320,17 @@ func (h *Handler) doExecRows(ctx context.Context, w io.Writer, rows *sql.Rows) e
 	return nil
 }
 
+// result returns the rows with the masking rules applied to them, or the rows
+// as they are when there is no rule.
+func (h *Handler) result(rows *sql.Rows, sqlstr string) tblfmt.ResultSet {
+	if h.masker.Empty() {
+		return rows
+	}
+	return h.masker.Wrap(rows, sqlstr)
+}
+
 // scan scans a row.
-func (h *Handler) scan(rows *sql.Rows, clen int, tfmt string) ([]string, error) {
+func (h *Handler) scan(rows tblfmt.ResultSet, clen int, tfmt string) ([]string, error) {
 	// scan to []interface{}
 	r := make([]interface{}, clen)
 	for i := range r {
@@ -1470,12 +1490,12 @@ func (h *Handler) IncludeReader(rdr io.Reader, path string) error {
 	if err != nil {
 		return err
 	}
-	p.db, p.u = h.db, h.u
+	p.db, p.u, p.masker = h.db, h.u, h.masker
 	if err := p.src.SetLanguage(drivers.Language(p.u)); err != nil {
 		return err
 	}
 	err = p.Run()
-	h.db, h.u = p.db, p.u
+	h.db, h.u, h.masker = p.db, p.u, p.masker
 	if lerr := h.setLanguage(); err == nil {
 		err = lerr
 	}

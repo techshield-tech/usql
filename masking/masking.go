@@ -101,6 +101,25 @@ func (m *Masker) Empty() bool {
 	return m == nil || len(m.rules) == 0
 }
 
+// Join returns a Masker with the rules of m and of o. A new connection adds
+// its rules to the rules of the session, so that it cannot remove one.
+func (m *Masker) Join(o *Masker) *Masker {
+	switch {
+	case m.Empty():
+		return o
+	case o.Empty():
+		return m
+	}
+	rules := make([]Rule, 0, len(m.rules)+len(o.rules))
+	for _, r := range m.rules {
+		rules = append(rules, r.Rule)
+	}
+	for _, r := range o.rules {
+		rules = append(rules, r.Rule)
+	}
+	return New(rules)
+}
+
 // Matches reports whether a rule hides the column.
 func (m *Masker) Matches(column string) bool {
 	if m == nil {
@@ -119,13 +138,10 @@ func (m *Masker) Mask(column, value string) string {
 	if m == nil {
 		return value
 	}
-	result := value
-	for _, r := range m.rules {
-		if r.matches(column) {
-			result = apply(r.Rule, value)
-		}
+	if i := m.find(column); i >= 0 {
+		return apply(m.rules[i].Rule, value)
 	}
-	return result
+	return value
 }
 
 // apply hides the value by the method of the rule. A method that is not known
@@ -153,30 +169,84 @@ func apply(r Rule, value string) string {
 	}
 }
 
-// ColumnTypes returns a func that builds the scan destination of a column. A
-// column that a rule hides is scanned into an any, whatever its type, so that
-// the mask can replace the value. Other columns use f, or an any when f is
-// nil.
-func (m *Masker) ColumnTypes(f func(*sql.ColumnType) (any, error)) func(*sql.ColumnType) (any, error) {
-	return func(ct *sql.ColumnType) (any, error) {
-		if f == nil || m.Matches(ct.Name()) {
-			return new(any), nil
-		}
-		return f(ct)
+// cover hides the value by the rule. With full, the value becomes the mask
+// pattern of the rule, or ###### when the rule has none, whatever the method.
+func cover(r Rule, value string, full bool) string {
+	switch {
+	case !full:
+		return apply(r, value)
+	case r.MaskPattern != "":
+		return r.MaskPattern
 	}
+	return "######"
 }
 
-// Rows is a result set that hides the columns that the rules match.
+// Rows is a result set that hides the columns that the rules match, by the
+// name of the column or by the expression in the query that gives it.
 type Rows struct {
 	*sql.Rows
-	m      *Masker
-	cols   []string
-	hidden []bool
+	m    *Masker
+	plan plan
+	// set counts the result sets before the current one.
+	set int
+	// hits holds how each column of the current result set is hidden. It is
+	// nil until the columns are read.
+	hits []hit
 }
 
-// Wrap returns rows with the columns that the rules match hidden.
-func (m *Masker) Wrap(rows *sql.Rows) *Rows {
-	return &Rows{Rows: rows, m: m}
+// Wrap returns rows with the columns that the rules match hidden. The query
+// is the statement that gave the rows. A column is hidden when its name
+// matches a rule, and also when its expression in the query names a masked
+// column, as in "SELECT phone AS p" or "SELECT upper(phone)". When the query
+// is not a plain SELECT, such as a UNION or a WITH, and it names a masked
+// column anywhere, every column is hidden. A column that is not a plain
+// reference to a masked column gets the whole mask pattern.
+func (m *Masker) Wrap(rows *sql.Rows, query string) *Rows {
+	return &Rows{Rows: rows, m: m, plan: m.plan(query)}
+}
+
+// init reads the columns of the current result set.
+func (r *Rows) init() error {
+	if r.hits != nil {
+		return nil
+	}
+	cols, err := r.Rows.Columns()
+	if err != nil {
+		return err
+	}
+	r.hits = r.plan.columns(r.m, cols, r.set)
+	return nil
+}
+
+// ScanTypes fills dest with the scan destination of each column of the
+// current result set. A column that a rule hides is scanned into an any,
+// whatever its type, so that the mask can replace the value. Other columns
+// use f, or an any when f is nil.
+func (r *Rows) ScanTypes(f func(*sql.ColumnType) (any, error), dest []any) error {
+	if err := r.init(); err != nil {
+		return err
+	}
+	var cts []*sql.ColumnType
+	if f != nil {
+		var err error
+		if cts, err = r.Rows.ColumnTypes(); err != nil {
+			return err
+		}
+		if len(cts) != len(dest) {
+			return fmt.Errorf("masking: %d column types for %d columns", len(cts), len(dest))
+		}
+	}
+	for i := range dest {
+		if f == nil || i < len(r.hits) && r.hits[i].rule >= 0 {
+			dest[i] = new(any)
+			continue
+		}
+		var err error
+		if dest[i], err = f(cts[i]); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // Scan scans the row, then replaces the value of each hidden column.
@@ -184,19 +254,12 @@ func (r *Rows) Scan(dest ...any) error {
 	if err := r.Rows.Scan(dest...); err != nil {
 		return err
 	}
-	if r.cols == nil {
-		cols, err := r.Rows.Columns()
-		if err != nil {
-			return err
-		}
-		r.cols, r.hidden = cols, make([]bool, len(cols))
-		for i, c := range cols {
-			r.hidden[i] = r.m.Matches(c)
-		}
+	if err := r.init(); err != nil {
+		return err
 	}
 	for i, d := range dest {
-		if i < len(r.hidden) && r.hidden[i] {
-			hide(d, r.m, r.cols[i])
+		if i < len(r.hits) && r.hits[i].rule >= 0 {
+			hide(d, r.m.rules[r.hits[i].rule].Rule, r.hits[i].full)
 		}
 	}
 	return nil
@@ -204,22 +267,23 @@ func (r *Rows) Scan(dest ...any) error {
 
 // NextResultSet moves to the next result set, which has its own columns.
 func (r *Rows) NextResultSet() bool {
-	r.cols, r.hidden = nil, nil
+	r.hits = nil
+	r.set++
 	return r.Rows.NextResultSet()
 }
 
-// hide replaces the value in the scan destination with its mask. A NULL stays
-// a NULL. A destination of a type that cannot hold text is cleared, so that
-// the value is never shown.
-func hide(dest any, m *Masker, column string) {
+// hide replaces the value in the scan destination with its mask by the rule.
+// A NULL stays a NULL. A destination of a type that cannot hold text is
+// cleared, so that the value is never shown.
+func hide(dest any, rule Rule, full bool) {
 	switch d := dest.(type) {
 	case *any:
 		if *d != nil {
-			*d = m.Mask(column, text(*d))
+			*d = cover(rule, text(*d), full)
 		}
 	case *sql.NullString:
 		if d.Valid {
-			d.String = m.Mask(column, d.String)
+			d.String = cover(rule, d.String, full)
 		}
 	default:
 		if v := reflect.ValueOf(dest); v.Kind() == reflect.Pointer && !v.IsNil() {

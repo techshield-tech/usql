@@ -45,6 +45,8 @@ var (
 	ErrInvalidValue = errors.New(`invalid value`)
 	// ErrTooManyRows is the too many rows error.
 	ErrTooManyRows = errors.New(`too many rows`)
+	// ErrCopyWithMasking is the error for \copy when masking rules apply.
+	ErrCopyWithMasking = errors.New(`\copy is not allowed when data masking is on, because it does not mask the rows that it copies`)
 	// ErrInvalidFormatType is the invalid format type error.
 	ErrInvalidFormatType = errors.New(`\pset: allowed formats are unaligned, aligned, wrapped, html, asciidoc, latex, latex-longtable, troff-ms, json, csv`)
 	// ErrInvalidFormatPagerType is the invalid format pager error.
